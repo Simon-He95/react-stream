@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Streamdown } from 'streamdown';
 
 export default function App() {
@@ -640,6 +640,7 @@ graph TD
 
   const [displayedContent, setDisplayedContent] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -655,5 +656,19 @@ graph TD
     return () => clearInterval(interval);
   }, [currentIndex, fullMarkdown]);
 
-  return <Streamdown>{displayedContent}</Streamdown>;
+  // 当内容更新时，自动滚动到底部
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const id = requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [displayedContent]);
+
+  return (
+    <div ref={containerRef} style={{ height: '100vh', overflow: 'auto' }}>
+      <Streamdown shikiTheme={['vitesse-dark','vitesse-light']}>{displayedContent}</Streamdown>
+    </div>
+  );
 }
