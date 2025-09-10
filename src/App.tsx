@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Streamdown } from 'streamdown';
 
-export default function Page() {
-  const streamContent = `I'll create a simple Electron + Vue chat application demo. Here's the structure:
+export default function App() {
+  const fullMarkdown = `I'll create a simple Electron + Vue chat application demo. Here's the structure:
 
 ::: warning
 这是一个警告块。
@@ -36,7 +36,7 @@ npm install -D electron-dev-server concurrently wait-on
 
 2. Create the main Electron file:
 
-\`\`\`javascript:electron/main.js
+\`\`\`javascript
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const isDev = process.env.NODE_ENV === 'development';
@@ -85,7 +85,7 @@ app.on('activate', () => {
 
 3. Update package.json:
 
-\`\`\`json:package.json
+\`\`\`json
 {
   "name": "electron-vue-chat",
   "version": "0.1.0",
@@ -116,7 +116,7 @@ app.on('activate', () => {
 
 4. Create chat components:
 
-\`\`\`vue:src/components/ChatSidebar.vue
+\`\`\`vue
 <template>
   <div class="chat-sidebar">
     <div class="sidebar-header">
@@ -222,7 +222,7 @@ function selectContact(contact) {
 </style>
 \`\`\`
 
-\`\`\`vue:src/components/ChatWindow.vue
+\`\`\`vue
 <template>
   <div class="chat-window">
     <div class="chat-header" v-if="contact">
@@ -500,7 +500,7 @@ function scrollToBottom() {
 
 5. Create the main chat view:
 
-\`\`\`vue:src/views/ChatView.vue
+\`\`\`vue
 <template>
   <div class="chat-container">
     <ChatSidebar @select-contact="setCurrentContact" />
@@ -531,7 +531,7 @@ function setCurrentContact(contact) {
 
 6. Update the main App.vue:
 
-\`\`\`vue:src/App.vue
+\`\`\`vue
 <template>
   <router-view />
 <\/template>
@@ -551,7 +551,7 @@ body {
 
 7. Set up the router:
 
-\`\`\`javascript:src/router/index.js
+\`\`\`javascript
 import { createRouter, createWebHistory } from 'vue-router';
 import ChatView from '../views/ChatView.vue';
 
@@ -573,7 +573,7 @@ export default router;
 
 8. Update main.js:
 
-\`\`\`javascript:src/main.js
+\`\`\`javascript
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -636,18 +636,24 @@ graph TD
     Orphee_Lam_Tao -->|隶属| Foundation
     Orphee_Lam_Tao -.->|追求| Lacus_Clyne
 \`\`\`
-  `
-  const [markdown, updateMarkdown] = useState('')
+`;
 
-  setInterval(() => {
-    if (markdown.length < streamContent.length) {
-      const newContent = markdown + streamContent.slice(
-        markdown.length,
-        markdown.length + 1,
-      )
-      updateMarkdown(newContent)
-    }
-  }, 10)
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  return <Streamdown>{markdown}</Streamdown>;
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentIndex < fullMarkdown.length) {
+        const nextIndex = Math.min(currentIndex + 1, fullMarkdown.length);
+        setDisplayedContent(fullMarkdown.slice(0, nextIndex));
+        setCurrentIndex(nextIndex);
+      } else {
+        clearInterval(interval);
+      }
+    }, 5);
+
+    return () => clearInterval(interval);
+  }, [currentIndex, fullMarkdown]);
+
+  return <Streamdown>{displayedContent}</Streamdown>;
 }
